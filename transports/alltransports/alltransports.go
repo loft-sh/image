@@ -10,12 +10,8 @@ import (
 	// Register all known transports.
 	// NOTE: Make sure docs/containers-transports.5.md and docs/containers-policy.json.5.md are updated when adding or updating
 	// a transport.
-	_ "github.com/loft-sh/image/directory"
 	_ "github.com/loft-sh/image/docker"
-	_ "github.com/loft-sh/image/docker/archive"
 	_ "github.com/loft-sh/image/oci/archive"
-	_ "github.com/loft-sh/image/oci/layout"
-	_ "github.com/loft-sh/image/tarball"
 	// The docker-daemon transport is registeredy by docker_daemon*.go
 	// The storage transport is registered by storage*.go
 )
