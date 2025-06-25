@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/imagesource"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/signature"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/imagesource"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 )
 
@@ -24,7 +23,6 @@ type UnparsedImage struct {
 	// A private cache for Manifest(), may be the empty string if guessing failed.
 	// Valid iff cachedManifest is not nil.
 	cachedManifestMIMEType string
-	cachedSignatures       []signature.Signature // A private cache for Signatures(); nil if not yet known.
 }
 
 // UnparsedInstance returns a types.UnparsedImage implementation for (source, instanceDigest).
@@ -93,33 +91,4 @@ func (i *UnparsedImage) expectedManifestDigest() (digest.Digest, bool) {
 		}
 	}
 	return "", false
-}
-
-// Signatures is like ImageSource.GetSignatures, but the result is cached; it is OK to call this however often you need.
-func (i *UnparsedImage) Signatures(ctx context.Context) ([][]byte, error) {
-	// It would be consistent to make this an internal/unparsedimage/impl.Compat wrapper,
-	// but this is very likely to be the only implementation ever.
-	sigs, err := i.UntrustedSignatures(ctx)
-	if err != nil {
-		return nil, err
-	}
-	simpleSigs := [][]byte{}
-	for _, sig := range sigs {
-		if sig, ok := sig.(signature.SimpleSigning); ok {
-			simpleSigs = append(simpleSigs, sig.UntrustedSignature())
-		}
-	}
-	return simpleSigs, nil
-}
-
-// UntrustedSignatures is like ImageSource.GetSignaturesWithFormat, but the result is cached; it is OK to call this however often you need.
-func (i *UnparsedImage) UntrustedSignatures(ctx context.Context) ([]signature.Signature, error) {
-	if i.cachedSignatures == nil {
-		sigs, err := i.src.GetSignaturesWithFormat(ctx, i.instanceDigest)
-		if err != nil {
-			return nil, err
-		}
-		i.cachedSignatures = sigs
-	}
-	return i.cachedSignatures, nil
 }

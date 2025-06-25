@@ -7,11 +7,11 @@ import (
 	"slices"
 	"strings"
 
-	internalManifest "github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/internal/set"
-	"github.com/containers/image/v5/manifest"
-	compressiontypes "github.com/containers/image/v5/pkg/compression/types"
-	"github.com/containers/image/v5/types"
+	internalManifest "github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/internal/set"
+	"github.com/loft-sh/image/manifest"
+	compressiontypes "github.com/loft-sh/image/pkg/compression/types"
+	"github.com/loft-sh/image/types"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 )

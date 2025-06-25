@@ -13,17 +13,17 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/internal/pkg/platform"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/set"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/compression"
-	compressiontypes "github.com/containers/image/v5/pkg/compression/types"
-	"github.com/containers/image/v5/transports"
-	"github.com/containers/image/v5/types"
 	chunkedToc "github.com/containers/storage/pkg/chunked/toc"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/internal/pkg/platform"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/internal/set"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/compression"
+	compressiontypes "github.com/loft-sh/image/pkg/compression/types"
+	"github.com/loft-sh/image/transports"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
@@ -75,9 +75,6 @@ func (c *copier) copySingleImage(ctx context.Context, unparsedImage *image.Unpar
 	// Please keep this policy check BEFORE reading any other information about the image.
 	// (The multiImage check above only matches the MIME type, which we have received anyway.
 	// Actual parsing of anything should be deferred.)
-	if allowed, err := c.policyContext.IsRunningImageAllowed(ctx, unparsedImage); !allowed || err != nil { // Be paranoid and fail if either return value indicates so.
-		return copySingleImageResult{}, fmt.Errorf("Source image rejected: %w", err)
-	}
 	src, err := image.FromUnparsedImage(ctx, c.options.SourceCtx, unparsedImage)
 	if err != nil {
 		return copySingleImageResult{}, fmt.Errorf("initializing image from source %s: %w", transports.ImageName(c.rawSource.Reference()), err)
@@ -114,20 +111,10 @@ func (c *copier) copySingleImage(ctx context.Context, unparsedImage *image.Unpar
 		return copySingleImageResult{}, err
 	}
 
-	sigs, err := c.sourceSignatures(ctx, src,
-		"Getting image source signatures",
-		"Checking if image destination supports signatures")
-	if err != nil {
-		return copySingleImageResult{}, err
-	}
-
 	// Determine if we're allowed to modify the manifest.
 	// If we can, set to the empty string. If we can't, set to the reason why.
 	// Compare, and perhaps keep in sync with, the version in copyMultipleImages.
 	cannotModifyManifestReason := ""
-	if len(sigs) > 0 {
-		cannotModifyManifestReason = "Would invalidate signatures"
-	}
 	if destIsDigestedReference {
 		cannotModifyManifestReason = "Destination specifies a digest"
 	}
@@ -181,7 +168,7 @@ func (c *copier) copySingleImage(ctx context.Context, unparsedImage *image.Unpar
 	//   We do intend the RecordDigestUncompressedPair calls to only work with reliable data, but at least there’s a risk
 	//   that the compressed version coming from a third party may be designed to attack some other decompressor implementation,
 	//   and we would reuse and sign it.
-	ic.canSubstituteBlobs = ic.cannotModifyManifestReason == "" && len(c.signers) == 0
+	ic.canSubstituteBlobs = ic.cannotModifyManifestReason == ""
 
 	if err := ic.updateEmbeddedDockerReference(); err != nil {
 		return copySingleImageResult{}, err
@@ -213,11 +200,10 @@ func (c *copier) copySingleImage(ctx context.Context, unparsedImage *image.Unpar
 
 	// If enabled, fetch and compare the destination's manifest. And as an optimization skip updating the destination iff equal
 	if c.options.OptimizeDestinationImageAlreadyExists {
-		shouldUpdateSigs := len(sigs) > 0 || len(c.signers) != 0 // TODO: Consider allowing signatures updates only and skipping the image's layers/manifest copy if possible
 		noPendingManifestUpdates := ic.noPendingManifestUpdates()
 
-		logrus.Debugf("Checking if we can skip copying: has signatures=%t, OCI encryption=%t, no manifest updates=%t, compression match required for reusing blobs=%t", shouldUpdateSigs, destRequiresOciEncryption, noPendingManifestUpdates, opts.requireCompressionFormatMatch)
-		if !shouldUpdateSigs && !destRequiresOciEncryption && noPendingManifestUpdates && !ic.requireCompressionFormatMatch {
+		logrus.Debugf("Checking if we can skip copying: OCI encryption=%t, no manifest updates=%t, compression match required for reusing blobs=%t", destRequiresOciEncryption, noPendingManifestUpdates, opts.requireCompressionFormatMatch)
+		if !destRequiresOciEncryption && noPendingManifestUpdates && !ic.requireCompressionFormatMatch {
 			matchedResult, err := ic.compareImageDestinationManifestEqual(ctx, targetInstance)
 			if err != nil {
 				logrus.Warnf("Failed to compare destination image manifest: %v", err)
@@ -300,18 +286,6 @@ func (c *copier) copySingleImage(ctx context.Context, unparsedImage *image.Unpar
 		targetInstance = &wipResult.manifestDigest
 	}
 
-	newSigs, err := c.createSignatures(ctx, wipResult.manifest, c.options.SignIdentity)
-	if err != nil {
-		return copySingleImageResult{}, err
-	}
-	sigs = append(slices.Clone(sigs), newSigs...)
-
-	if len(sigs) > 0 {
-		c.Printf("Storing signatures\n")
-		if err := c.dest.PutSignaturesWithFormat(ctx, sigs, targetInstance); err != nil {
-			return copySingleImageResult{}, fmt.Errorf("writing signatures: %w", err)
-		}
-	}
 	wipResult.compressionAlgorithms = compressionAlgos
 	res := wipResult // We are done
 	return res, nil

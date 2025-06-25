@@ -1,9 +1,9 @@
 package archive
 
 import (
-	"github.com/containers/image/v5/docker/internal/tarfile"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/internal/tarfile"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/types"
 )
 
 type archiveImageSource struct {

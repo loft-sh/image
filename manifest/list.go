@@ -1,7 +1,7 @@
 package manifest
 
 import (
-	"github.com/containers/image/v5/internal/manifest"
+	"github.com/loft-sh/image/internal/manifest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 

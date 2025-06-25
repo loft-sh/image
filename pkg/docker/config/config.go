@@ -14,16 +14,16 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/multierr"
-	"github.com/containers/image/v5/internal/set"
-	"github.com/containers/image/v5/pkg/sysregistriesv2"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/fileutils"
 	"github.com/containers/storage/pkg/homedir"
 	"github.com/containers/storage/pkg/ioutils"
 	helperclient "github.com/docker/docker-credential-helpers/client"
 	"github.com/docker/docker-credential-helpers/credentials"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/multierr"
+	"github.com/loft-sh/image/internal/set"
+	"github.com/loft-sh/image/pkg/sysregistriesv2"
+	"github.com/loft-sh/image/types"
 	"github.com/sirupsen/logrus"
 )
 

@@ -4,11 +4,9 @@ import (
 	"context"
 	"io"
 
-	"github.com/containers/image/v5/internal/blobinfocache"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/signature"
-	"github.com/containers/image/v5/types"
-	"github.com/opencontainers/go-digest"
+	"github.com/loft-sh/image/internal/blobinfocache"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/types"
 )
 
 // Compat implements the obsolete parts of types.ImageDestination
@@ -86,18 +84,6 @@ func (c *Compat) TryReusingBlob(ctx context.Context, info types.BlobInfo, cache 
 		res.MediaType = info.MediaType
 	}
 	return true, res, nil
-}
-
-// PutSignatures writes a set of signatures to the destination.
-// If instanceDigest is not nil, it contains a digest of the specific manifest instance to write or overwrite the signatures for
-// (when the primary manifest is a manifest list); this should always be nil if the primary manifest is not a manifest list.
-// MUST be called after PutManifest (signatures may reference manifest contents).
-func (c *Compat) PutSignatures(ctx context.Context, signatures [][]byte, instanceDigest *digest.Digest) error {
-	withFormat := []signature.Signature{}
-	for _, sig := range signatures {
-		withFormat = append(withFormat, signature.SimpleSigningFromBlob(sig))
-	}
-	return c.dest.PutSignaturesWithFormat(ctx, withFormat, instanceDigest)
 }
 
 // Commit marks the process of storing the image as successful and asks for the image to be persisted.

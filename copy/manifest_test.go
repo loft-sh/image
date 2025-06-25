@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/containers/image/v5/internal/testing/mocks"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/compression"
+	"github.com/loft-sh/image/internal/testing/mocks"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/compression"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

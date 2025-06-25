@@ -9,11 +9,11 @@ import (
 	"os"
 	"path"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/iolimits"
-	"github.com/containers/image/v5/internal/tmpdir"
-	"github.com/containers/image/v5/pkg/compression"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/iolimits"
+	"github.com/loft-sh/image/internal/tmpdir"
+	"github.com/loft-sh/image/pkg/compression"
+	"github.com/loft-sh/image/types"
 )
 
 // Reader is a ((docker save)-formatted) tar archive that allows random access to any component.

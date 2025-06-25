@@ -3,8 +3,8 @@ package mocks
 import (
 	"context"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/types"
 )
 
 // ForbiddenImageReference is used when we don’t expect the ImageReference to be used in our tests.

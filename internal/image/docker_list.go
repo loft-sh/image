@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/types"
 )
 
 func manifestSchema2FromManifestList(ctx context.Context, sys *types.SystemContext, src types.ImageSource, manblob []byte) (genericManifest, error) {

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/containers/image/v5/internal/manifest"
-	compressiontypes "github.com/containers/image/v5/pkg/compression/types"
-	"github.com/containers/image/v5/pkg/strslice"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/manifest"
+	compressiontypes "github.com/loft-sh/image/pkg/compression/types"
+	"github.com/loft-sh/image/pkg/strslice"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 )
 

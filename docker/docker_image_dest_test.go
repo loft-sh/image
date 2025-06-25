@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/containers/image/v5/internal/private"
+	"github.com/loft-sh/image/internal/private"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

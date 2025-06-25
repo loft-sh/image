@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/types"
 	"github.com/stretchr/testify/assert"
 )
 

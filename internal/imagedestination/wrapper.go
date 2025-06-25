@@ -4,11 +4,9 @@ import (
 	"context"
 	"io"
 
-	"github.com/containers/image/v5/internal/imagedestination/stubs"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/signature"
-	"github.com/containers/image/v5/types"
-	"github.com/opencontainers/go-digest"
+	"github.com/loft-sh/image/internal/imagedestination/stubs"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/types"
 )
 
 // wrapped provides the private.ImageDestination operations
@@ -81,22 +79,6 @@ func (w *wrapped) TryReusingBlobWithOptions(ctx context.Context, info types.Blob
 		// annotations, and we didn’t use the blob.Annotations field previously, so we’ll
 		// continue not using it.
 	}, nil
-}
-
-// PutSignaturesWithFormat writes a set of signatures to the destination.
-// If instanceDigest is not nil, it contains a digest of the specific manifest instance to write or overwrite the signatures for
-// (when the primary manifest is a manifest list); this should always be nil if the primary manifest is not a manifest list.
-// MUST be called after PutManifest (signatures may reference manifest contents).
-func (w *wrapped) PutSignaturesWithFormat(ctx context.Context, signatures []signature.Signature, instanceDigest *digest.Digest) error {
-	simpleSigs := [][]byte{}
-	for _, sig := range signatures {
-		simpleSig, ok := sig.(signature.SimpleSigning)
-		if !ok {
-			return signature.UnsupportedFormatError(sig)
-		}
-		simpleSigs = append(simpleSigs, simpleSig.UntrustedSignature())
-	}
-	return w.PutSignatures(ctx, simpleSigs, instanceDigest)
 }
 
 // CommitWithOptions marks the process of storing the image as successful and asks for the image to be persisted.

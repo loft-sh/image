@@ -1,4 +1,11 @@
-[![Go Reference](https://pkg.go.dev/badge/github.com/containers/image/v5.svg)](https://pkg.go.dev/github.com/containers/image/v5) [![Build Status](https://api.cirrus-ci.com/github/containers/image.svg)](https://cirrus-ci.com/github/containers/image)
+# Adjustments
+
+This version is adjusted and removes everything vCluster doesn't need:
+* Signature handling as those don't need to be handled as vCluster needs preserve digest copies
+* Special caches like sqlite or bbolt
+
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/loft-sh/image.svg)](https://pkg.go.dev/github.com/loft-sh/image) [![Build Status](https://api.cirrus-ci.com/github/containers/image.svg)](https://cirrus-ci.com/github/containers/image)
 =
 
 `image` is a set of Go libraries aimed at working in various way with

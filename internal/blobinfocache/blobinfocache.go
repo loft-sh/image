@@ -1,7 +1,7 @@
 package blobinfocache
 
 import (
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 )
 

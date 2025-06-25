@@ -1,8 +1,8 @@
 package impl
 
 import (
-	"github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/internal/private"
+	"github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/internal/private"
 )
 
 // OriginalCandidateMatchesTryReusingBlobOptions returns true if the original blob passed to TryReusingBlobWithOptions

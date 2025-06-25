@@ -12,11 +12,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containers/image/v5/internal/imagesource/impl"
-	"github.com/containers/image/v5/internal/imagesource/stubs"
-	"github.com/containers/image/v5/pkg/compression"
-	compressionTypes "github.com/containers/image/v5/pkg/compression/types"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/imagesource/impl"
+	"github.com/loft-sh/image/internal/imagesource/stubs"
+	"github.com/loft-sh/image/pkg/compression"
+	compressionTypes "github.com/loft-sh/image/pkg/compression/types"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	imgspecs "github.com/opencontainers/image-spec/specs-go"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
@@ -25,7 +25,6 @@ import (
 type tarballImageSource struct {
 	impl.Compat
 	impl.PropertyMethodsInitialize
-	impl.NoSignatures
 	impl.DoesNotAffectLayerInfosForCopy
 	stubs.NoGetBlobAtInitialize
 

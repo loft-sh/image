@@ -1,10 +1,10 @@
 package image
 
 import (
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/unparsedimage"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/internal/unparsedimage"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 )
 

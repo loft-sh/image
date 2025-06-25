@@ -10,11 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/rootless"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/fileutils"
 	"github.com/containers/storage/pkg/homedir"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/rootless"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
@@ -22,7 +22,7 @@ import (
 
 // systemRegistriesDirPath is the path to registries.d, used for locating lookaside Docker signature storage.
 // You can override this at build time with
-// -ldflags '-X github.com/containers/image/v5/docker.systemRegistriesDirPath=$your_path'
+// -ldflags '-X github.com/loft-sh/image/docker.systemRegistriesDirPath=$your_path'
 var systemRegistriesDirPath = builtinRegistriesDirPath
 
 // builtinRegistriesDirPath is the path to registries.d.

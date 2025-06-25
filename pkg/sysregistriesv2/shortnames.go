@@ -9,12 +9,12 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/multierr"
-	"github.com/containers/image/v5/internal/rootless"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/homedir"
 	"github.com/containers/storage/pkg/lockfile"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/multierr"
+	"github.com/loft-sh/image/internal/rootless"
+	"github.com/loft-sh/image/types"
 	"github.com/sirupsen/logrus"
 )
 

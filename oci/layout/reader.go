@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/types"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 

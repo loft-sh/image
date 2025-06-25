@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/types"
 )
 
 // NoPutBlobPartialInitialize implements parts of private.ImageDestination

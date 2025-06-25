@@ -8,13 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/internal/set"
-	compressiontypes "github.com/containers/image/v5/pkg/compression/types"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/regexp"
 	"github.com/docker/docker/api/types/versions"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/internal/set"
+	compressiontypes "github.com/loft-sh/image/pkg/compression/types"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 )
 

@@ -5,11 +5,10 @@ import (
 	"io"
 	"time"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/blobinfocache"
-	"github.com/containers/image/v5/internal/signature"
-	compression "github.com/containers/image/v5/pkg/compression/types"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/blobinfocache"
+	compression "github.com/loft-sh/image/pkg/compression/types"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
@@ -21,12 +20,6 @@ type ImageSourceInternalOnly interface {
 	SupportsGetBlobAt() bool
 	// BlobChunkAccessor.GetBlobAt is available only if SupportsGetBlobAt().
 	BlobChunkAccessor
-
-	// GetSignaturesWithFormat returns the image's signatures.  It may use a remote (= slow) service.
-	// If instanceDigest is not nil, it contains a digest of the specific manifest instance to retrieve signatures for
-	// (when the primary manifest is a manifest list); this never happens if the primary manifest is not a manifest list
-	// (e.g. if the source never returns manifest lists).
-	GetSignaturesWithFormat(ctx context.Context, instanceDigest *digest.Digest) ([]signature.Signature, error)
 }
 
 // ImageSource is an internal extension to the types.ImageSource interface.
@@ -72,12 +65,6 @@ type ImageDestinationInternalOnly interface {
 	// If the blob has been successfully reused, returns (true, info, nil).
 	// If the transport can not reuse the requested blob, TryReusingBlob returns (false, {}, nil); it returns a non-nil error only on an unexpected failure.
 	TryReusingBlobWithOptions(ctx context.Context, info types.BlobInfo, options TryReusingBlobOptions) (bool, ReusedBlob, error)
-
-	// PutSignaturesWithFormat writes a set of signatures to the destination.
-	// If instanceDigest is not nil, it contains a digest of the specific manifest instance to write or overwrite the signatures for
-	// (when the primary manifest is a manifest list); this should always be nil if the primary manifest is not a manifest list.
-	// MUST be called after PutManifest (signatures may reference manifest contents).
-	PutSignaturesWithFormat(ctx context.Context, signatures []signature.Signature, instanceDigest *digest.Digest) error
 
 	// CommitWithOptions marks the process of storing the image as successful and asks for the image to be persisted.
 	// WARNING: This does not have any transactional semantics:
@@ -215,8 +202,6 @@ func (e BadPartialRequestError) Error() string {
 // UnparsedImage is an internal extension to the types.UnparsedImage interface.
 type UnparsedImage interface {
 	types.UnparsedImage
-	// UntrustedSignatures is like ImageSource.GetSignaturesWithFormat, but the result is cached; it is OK to call this however often you need.
-	UntrustedSignatures(ctx context.Context) ([]signature.Signature, error)
 }
 
 // ErrFallbackToOrdinaryLayerDownload is a custom error type returned by PutBlobPartial.

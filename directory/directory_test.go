@@ -8,10 +8,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/blobinfocache/memory"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/blobinfocache/memory"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -159,15 +159,6 @@ func TestGetPutSignatures(t *testing.T) {
 	list := []byte("test-manifest-list")
 	md, err := manifest.Digest(man)
 	require.NoError(t, err)
-	// These signatures are completely invalid; start with 0xA3 just to be minimally plausible to signature.FromBlob.
-	signatures := [][]byte{
-		[]byte("\xA3sig1"),
-		[]byte("\xA3sig2"),
-	}
-	listSignatures := [][]byte{
-		[]byte("\xA3sig3"),
-		[]byte("\xA3sig4"),
-	}
 
 	dest, err := ref.NewImageDestination(context.Background(), nil)
 	require.NoError(t, err)
@@ -180,23 +171,9 @@ func TestGetPutSignatures(t *testing.T) {
 	err = dest.PutManifest(context.Background(), list, nil)
 	require.NoError(t, err)
 
-	err = dest.PutSignatures(context.Background(), signatures, &md)
-	assert.NoError(t, err)
-	err = dest.PutSignatures(context.Background(), listSignatures, nil)
-	assert.NoError(t, err)
-	err = dest.Commit(context.Background(), nil) // nil unparsedToplevel is invalid, we don’t currently use the value
-	assert.NoError(t, err)
-
 	src, err := ref.NewImageSource(context.Background(), nil)
 	require.NoError(t, err)
 	defer src.Close()
-	sigs, err := src.GetSignatures(context.Background(), nil)
-	assert.NoError(t, err)
-	assert.Equal(t, listSignatures, sigs)
-
-	sigs, err = src.GetSignatures(context.Background(), &md)
-	assert.NoError(t, err)
-	assert.Equal(t, signatures, sigs)
 }
 
 func TestSourceReference(t *testing.T) {

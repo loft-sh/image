@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/pkg/blobinfocache/memory"
 	"github.com/containers/storage"
 	"github.com/containers/storage/pkg/archive"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/pkg/blobinfocache/memory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

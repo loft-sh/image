@@ -20,16 +20,16 @@ import (
 	"testing"
 	"time"
 
-	imanifest "github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/blobinfocache/memory"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage"
 	"github.com/containers/storage/pkg/archive"
 	"github.com/containers/storage/pkg/idtools"
 	"github.com/containers/storage/pkg/ioutils"
 	"github.com/containers/storage/pkg/reexec"
+	imanifest "github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/blobinfocache/memory"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -479,8 +479,6 @@ func TestWriteRead(t *testing.T) {
 		t.Logf("this manifest is %q", manifest)
 		err = dest.PutManifest(context.Background(), []byte(manifest), nil)
 		require.NoError(t, err)
-		err = dest.PutSignatures(context.Background(), signatures, nil)
-		require.NoError(t, err)
 		unparsedToplevel := unparsedImage{
 			imageReference: nil,
 			manifestBytes:  []byte(manifest),
@@ -522,12 +520,6 @@ func TestWriteRead(t *testing.T) {
 		retrieved, _, err := src.GetManifest(context.Background(), &instanceDigest)
 		require.NoError(t, err)
 		assert.Equal(t, manifest, string(retrieved))
-		sigs, err := src.GetSignatures(context.Background(), nil)
-		require.NoError(t, err)
-		assert.Equal(t, signatures, sigs)
-		sigs2, err := src.GetSignatures(context.Background(), &instanceDigest)
-		require.NoError(t, err)
-		assert.Equal(t, sigs, sigs2)
 		for _, layerInfo := range layerInfos {
 			buf := bytes.Buffer{}
 			layer, size, err := src.GetBlob(context.Background(), layerInfo, cache)

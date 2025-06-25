@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/blobinfocache/memory"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/blobinfocache/memory"
+	"github.com/loft-sh/image/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

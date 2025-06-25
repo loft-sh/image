@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	internal "github.com/containers/image/v5/docker/internal/tarfile"
-	"github.com/containers/image/v5/types"
+	internal "github.com/loft-sh/image/docker/internal/tarfile"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 )
 
@@ -83,13 +83,6 @@ func (s *Source) HasThreadSafeGetBlob() bool {
 // May update BlobInfoCache, preferably after it knows for certain that a blob truly exists at a specific location.
 func (s *Source) GetBlob(ctx context.Context, info types.BlobInfo, cache types.BlobInfoCache) (io.ReadCloser, int64, error) {
 	return s.internal.GetBlob(ctx, info, cache)
-}
-
-// GetSignatures returns the image's signatures.  It may use a remote (= slow) service.
-// This source implementation does not support manifest lists, so the passed-in instanceDigest should always be nil,
-// as there can be no secondary manifests.
-func (s *Source) GetSignatures(ctx context.Context, instanceDigest *digest.Digest) ([][]byte, error) {
-	return s.internal.GetSignatures(ctx, instanceDigest)
 }
 
 // LayerInfosForCopy returns either nil (meaning the values in the manifest are fine), or updated values for the layer

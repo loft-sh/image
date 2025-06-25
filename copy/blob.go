@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/containers/image/v5/internal/private"
-	compressiontypes "github.com/containers/image/v5/pkg/compression/types"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/private"
+	compressiontypes "github.com/loft-sh/image/pkg/compression/types"
+	"github.com/loft-sh/image/types"
 	"github.com/sirupsen/logrus"
 )
 

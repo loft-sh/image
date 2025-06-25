@@ -9,13 +9,12 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/containers/image/v5/internal/imagedestination/impl"
-	"github.com/containers/image/v5/internal/imagedestination/stubs"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/putblobdigest"
-	"github.com/containers/image/v5/internal/signature"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/fileutils"
+	"github.com/loft-sh/image/internal/imagedestination/impl"
+	"github.com/loft-sh/image/internal/imagedestination/stubs"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/internal/putblobdigest"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 	"github.com/sirupsen/logrus"
 )
@@ -229,27 +228,6 @@ func (d *dirImageDestination) PutManifest(ctx context.Context, manifest []byte, 
 		return err
 	}
 	return os.WriteFile(path, manifest, 0644)
-}
-
-// PutSignaturesWithFormat writes a set of signatures to the destination.
-// If instanceDigest is not nil, it contains a digest of the specific manifest instance to write or overwrite the signatures for
-// (when the primary manifest is a manifest list); this should always be nil if the primary manifest is not a manifest list.
-// MUST be called after PutManifest (signatures may reference manifest contents).
-func (d *dirImageDestination) PutSignaturesWithFormat(ctx context.Context, signatures []signature.Signature, instanceDigest *digest.Digest) error {
-	for i, sig := range signatures {
-		blob, err := signature.Blob(sig)
-		if err != nil {
-			return err
-		}
-		path, err := d.ref.signaturePath(i, instanceDigest)
-		if err != nil {
-			return err
-		}
-		if err := os.WriteFile(path, blob, 0644); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // CommitWithOptions marks the process of storing the image as successful and asks for the image to be persisted.

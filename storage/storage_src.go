@@ -13,17 +13,16 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/internal/imagesource/impl"
-	"github.com/containers/image/v5/internal/imagesource/stubs"
-	"github.com/containers/image/v5/internal/signature"
-	"github.com/containers/image/v5/internal/tmpdir"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage"
 	"github.com/containers/storage/pkg/archive"
 	"github.com/containers/storage/pkg/ioutils"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/internal/imagesource/impl"
+	"github.com/loft-sh/image/internal/imagesource/stubs"
+	"github.com/loft-sh/image/internal/tmpdir"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
@@ -378,53 +377,6 @@ func buildLayerInfosForCopy(manifestInfos []manifest.LayerInfo, physicalInfos []
 	}
 	if nextPhysical != len(physicalInfos) {
 		return nil, fmt.Errorf("used only %d out of %d physical layers", nextPhysical, len(physicalInfos))
-	}
-	return res, nil
-}
-
-// GetSignaturesWithFormat returns the image's signatures.  It may use a remote (= slow) service.
-// If instanceDigest is not nil, it contains a digest of the specific manifest instance to retrieve signatures for
-// (when the primary manifest is a manifest list); this never happens if the primary manifest is not a manifest list
-// (e.g. if the source never returns manifest lists).
-func (s *storageImageSource) GetSignaturesWithFormat(ctx context.Context, instanceDigest *digest.Digest) ([]signature.Signature, error) {
-	var offset int
-	signatureBlobs := []byte{}
-	signatureSizes := s.metadata.SignatureSizes
-	key := "signatures"
-	instance := "default instance"
-	if instanceDigest != nil {
-		signatureSizes = s.metadata.SignaturesSizes[*instanceDigest]
-		k, err := signatureBigDataKey(*instanceDigest)
-		if err != nil {
-			return nil, err
-		}
-		key = k
-		if err := instanceDigest.Validate(); err != nil { // digest.Digest.Encoded() panics on failure, so validate explicitly.
-			return nil, err
-		}
-		instance = instanceDigest.Encoded()
-	}
-	if len(signatureSizes) > 0 {
-		data, err := s.imageRef.transport.store.ImageBigData(s.image.ID, key)
-		if err != nil {
-			return nil, fmt.Errorf("looking up signatures data for image %q (%s): %w", s.image.ID, instance, err)
-		}
-		signatureBlobs = data
-	}
-	res := []signature.Signature{}
-	for _, length := range signatureSizes {
-		if offset+length > len(signatureBlobs) {
-			return nil, fmt.Errorf("looking up signatures data for image %q (%s): expected at least %d bytes, only found %d", s.image.ID, instance, len(signatureBlobs), offset+length)
-		}
-		sig, err := signature.FromBlob(signatureBlobs[offset : offset+length])
-		if err != nil {
-			return nil, fmt.Errorf("parsing signature at (%d, %d): %w", offset, length, err)
-		}
-		res = append(res, sig)
-		offset += length
-	}
-	if offset != len(signatureBlobs) {
-		return nil, fmt.Errorf("signatures data (%s) contained %d extra bytes", instance, len(signatureBlobs)-offset)
 	}
 	return res, nil
 }

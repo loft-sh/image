@@ -13,11 +13,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/set"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/internal/set"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 	"github.com/sirupsen/logrus"
 )

@@ -9,21 +9,18 @@ import (
 	"slices"
 	"time"
 
-	"github.com/containers/image/v5/docker/reference"
-	internalblobinfocache "github.com/containers/image/v5/internal/blobinfocache"
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/internal/imagedestination"
-	"github.com/containers/image/v5/internal/imagesource"
-	internalManifest "github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/blobinfocache"
-	compression "github.com/containers/image/v5/pkg/compression/types"
-	"github.com/containers/image/v5/signature"
-	"github.com/containers/image/v5/signature/signer"
-	"github.com/containers/image/v5/transports"
-	"github.com/containers/image/v5/types"
 	encconfig "github.com/containers/ocicrypt/config"
+	internalblobinfocache "github.com/loft-sh/image/internal/blobinfocache"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/internal/imagedestination"
+	"github.com/loft-sh/image/internal/imagesource"
+	internalManifest "github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/blobinfocache"
+	compression "github.com/loft-sh/image/pkg/compression/types"
+	"github.com/loft-sh/image/transports"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/semaphore"
@@ -73,14 +70,6 @@ type ImageListSelection int
 // Options allows supplying non-default configuration modifying the behavior of CopyImage.
 type Options struct {
 	RemoveSignatures bool // Remove any pre-existing signatures. Signers and SignBy… will still add a new signature.
-	// Signers to use to add signatures during the copy.
-	// Callers are still responsible for closing these Signer objects; they can be reused for multiple copy.Image operations in a row.
-	Signers                          []*signer.Signer
-	SignBy                           string          // If non-empty, asks for a signature to be added during the copy, and specifies a key ID, as accepted by signature.NewGPGSigningMechanism().SignDockerManifest(),
-	SignPassphrase                   string          // Passphrase to use when signing with the key ID from `SignBy`.
-	SignBySigstorePrivateKeyFile     string          // If non-empty, asks for a signature to be added during the copy, using a sigstore private key file at the provided path.
-	SignSigstorePrivateKeyPassphrase []byte          // Passphrase to use when signing with `SignBySigstorePrivateKeyFile`.
-	SignIdentity                     reference.Named // Identify to use when signing, defaults to the docker reference of the destination
 
 	ReportWriter     io.Writer
 	SourceCtx        *types.SystemContext
@@ -170,10 +159,9 @@ type OptionCompressionVariant struct {
 // data shared across one or more images in a possible manifest list.
 // The owner must call close() when done.
 type copier struct {
-	policyContext *signature.PolicyContext
-	dest          private.ImageDestination
-	rawSource     private.ImageSource
-	options       *Options // never nil
+	dest      private.ImageDestination
+	rawSource private.ImageSource
+	options   *Options // never nil
 
 	reportWriter   io.Writer
 	progressOutput io.Writer
@@ -181,8 +169,6 @@ type copier struct {
 	unparsedToplevel              *image.UnparsedImage // for rawSource
 	blobInfoCache                 internalblobinfocache.BlobInfoCache2
 	concurrentBlobCopiesSemaphore *semaphore.Weighted // Limits the amount of concurrently copied blobs
-	signers                       []*signer.Signer    // Signers to use to create new signatures for the image
-	signersToClose                []*signer.Signer    // Signers that should be closed when this copier is destroyed.
 }
 
 // Internal function to validate `requireCompressionFormatMatch` for copySingleImageOptions
@@ -196,7 +182,7 @@ func shouldRequireCompressionFormatMatch(options *Options) (bool, error) {
 // Image copies image from srcRef to destRef, using policyContext to validate
 // source image admissibility.  It returns the manifest which was written to
 // the new copy of the image.
-func Image(ctx context.Context, policyContext *signature.PolicyContext, destRef, srcRef types.ImageReference, options *Options) (copiedManifest []byte, retErr error) {
+func Image(ctx context.Context, destRef, srcRef types.ImageReference, options *Options) (copiedManifest []byte, retErr error) {
 	if options == nil {
 		options = &Options{}
 	}
@@ -248,10 +234,9 @@ func Image(ctx context.Context, policyContext *signature.PolicyContext, destRef,
 	}
 
 	c := &copier{
-		policyContext: policyContext,
-		dest:          dest,
-		rawSource:     rawSource,
-		options:       options,
+		dest:      dest,
+		rawSource: rawSource,
+		options:   options,
 
 		reportWriter:   reportWriter,
 		progressOutput: progressOutput,
@@ -284,10 +269,6 @@ func Image(ctx context.Context, policyContext *signature.PolicyContext, destRef,
 			}
 			defer c.options.ConcurrentBlobCopiesSemaphore.Release(1)
 		}
-	}
-
-	if err := c.setupSigners(); err != nil {
-		return nil, err
 	}
 
 	multiImage, err := isMultiImage(ctx, c.unparsedToplevel)
@@ -379,13 +360,7 @@ func (c *copier) Printf(format string, a ...any) {
 }
 
 // close tears down state owned by copier.
-func (c *copier) close() {
-	for i, s := range c.signersToClose {
-		if err := s.Close(); err != nil {
-			logrus.Warnf("Error closing per-copy signer %d: %v", i+1, err)
-		}
-	}
-}
+func (c *copier) close() {}
 
 // validateImageListSelection returns an error if the passed-in value is not one that we recognize as a valid ImageListSelection value
 func validateImageListSelection(selection ImageListSelection) error {

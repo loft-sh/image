@@ -8,15 +8,15 @@ import (
 	"os"
 	"strings"
 
-	"github.com/containers/image/v5/directory/explicitfilepath"
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/internal/tmpdir"
-	"github.com/containers/image/v5/oci/internal"
-	ocilayout "github.com/containers/image/v5/oci/layout"
-	"github.com/containers/image/v5/transports"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/archive"
+	"github.com/loft-sh/image/directory/explicitfilepath"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/internal/tmpdir"
+	"github.com/loft-sh/image/oci/internal"
+	ocilayout "github.com/loft-sh/image/oci/layout"
+	"github.com/loft-sh/image/transports"
+	"github.com/loft-sh/image/types"
 )
 
 func init() {

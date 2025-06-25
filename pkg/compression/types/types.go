@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/containers/image/v5/pkg/compression/internal"
+	"github.com/loft-sh/image/pkg/compression/internal"
 )
 
 // DecompressorFunc returns the decompressed stream, given a compressed stream.

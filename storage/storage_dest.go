@@ -15,25 +15,24 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/internal/imagedestination/impl"
-	"github.com/containers/image/v5/internal/imagedestination/stubs"
-	srcImpl "github.com/containers/image/v5/internal/imagesource/impl"
-	srcStubs "github.com/containers/image/v5/internal/imagesource/stubs"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/putblobdigest"
-	"github.com/containers/image/v5/internal/signature"
-	"github.com/containers/image/v5/internal/tmpdir"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/blobinfocache/none"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage"
 	graphdriver "github.com/containers/storage/drivers"
 	"github.com/containers/storage/pkg/archive"
 	"github.com/containers/storage/pkg/chunked"
 	"github.com/containers/storage/pkg/chunked/toc"
 	"github.com/containers/storage/pkg/ioutils"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/internal/imagedestination/impl"
+	"github.com/loft-sh/image/internal/imagedestination/stubs"
+	srcImpl "github.com/loft-sh/image/internal/imagesource/impl"
+	srcStubs "github.com/loft-sh/image/internal/imagesource/stubs"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/internal/putblobdigest"
+	"github.com/loft-sh/image/internal/tmpdir"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/blobinfocache/none"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
@@ -1288,7 +1287,6 @@ func (s *storageImageDestination) createNewLayer(index int, trusted trustedLayer
 type uncommittedImageSource struct {
 	srcImpl.Compat
 	srcImpl.PropertyMethodsInitialize
-	srcImpl.NoSignatures
 	srcImpl.DoesNotAffectLayerInfosForCopy
 	srcStubs.NoGetBlobAtInitialize
 
@@ -1655,35 +1653,5 @@ func (s *storageImageDestination) PutManifest(ctx context.Context, manifestBlob 
 	}
 	s.manifestMIMEType = manifest.GuessMIMEType(s.manifest)
 	s.manifestDigest = digest
-	return nil
-}
-
-// PutSignaturesWithFormat writes a set of signatures to the destination.
-// If instanceDigest is not nil, it contains a digest of the specific manifest instance to write or overwrite the signatures for
-// (when the primary manifest is a manifest list); this should always be nil if the primary manifest is not a manifest list.
-// MUST be called after PutManifest (signatures may reference manifest contents).
-func (s *storageImageDestination) PutSignaturesWithFormat(ctx context.Context, signatures []signature.Signature, instanceDigest *digest.Digest) error {
-	sizes := []int{}
-	sigblob := []byte{}
-	for _, sigWithFormat := range signatures {
-		sig, err := signature.Blob(sigWithFormat)
-		if err != nil {
-			return err
-		}
-		sizes = append(sizes, len(sig))
-		sigblob = append(sigblob, sig...)
-	}
-	if instanceDigest == nil {
-		s.signatures = sigblob
-		s.metadata.SignatureSizes = sizes
-		if s.manifest != nil {
-			manifestDigest := s.manifestDigest
-			instanceDigest = &manifestDigest
-		}
-	}
-	if instanceDigest != nil {
-		s.signatureses[*instanceDigest] = sigblob
-		s.metadata.SignaturesSizes[*instanceDigest] = sizes
-	}
 	return nil
 }

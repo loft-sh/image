@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/transports"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/transports"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 )
 

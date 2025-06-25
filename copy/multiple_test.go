@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	internalManifest "github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/pkg/compression"
+	internalManifest "github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/pkg/compression"
 	digest "github.com/opencontainers/go-digest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/containers/image/v5/docker/internal/tarfile"
-	"github.com/containers/image/v5/docker/reference"
-	ctrImage "github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/transports"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/internal/tarfile"
+	"github.com/loft-sh/image/docker/reference"
+	ctrImage "github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/transports"
+	"github.com/loft-sh/image/types"
 )
 
 func init() {

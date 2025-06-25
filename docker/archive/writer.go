@@ -7,9 +7,9 @@ import (
 	"os"
 	"sync"
 
-	"github.com/containers/image/v5/docker/internal/tarfile"
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/internal/tarfile"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/types"
 )
 
 // Writer manages a single in-progress Docker archive and allows adding images to it.

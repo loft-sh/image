@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/containers/image/v5/docker/reference"
-	compression "github.com/containers/image/v5/pkg/compression/types"
+	"github.com/loft-sh/image/docker/reference"
+	compression "github.com/loft-sh/image/pkg/compression/types"
 	digest "github.com/opencontainers/go-digest"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
@@ -267,11 +267,6 @@ type ImageSource interface {
 	GetBlob(context.Context, BlobInfo, BlobInfoCache) (io.ReadCloser, int64, error)
 	// HasThreadSafeGetBlob indicates whether GetBlob can be executed concurrently.
 	HasThreadSafeGetBlob() bool
-	// GetSignatures returns the image's signatures.  It may use a remote (= slow) service.
-	// If instanceDigest is not nil, it contains a digest of the specific manifest instance to retrieve signatures for
-	// (when the primary manifest is a manifest list); this never happens if the primary manifest is not a manifest list
-	// (e.g. if the source never returns manifest lists).
-	GetSignatures(ctx context.Context, instanceDigest *digest.Digest) ([][]byte, error)
 	// LayerInfosForCopy returns either nil (meaning the values in the manifest are fine), or updated values for the layer
 	// blobsums that are listed in the image's manifest.  If values are returned, they should be used when using GetBlob()
 	// to read the image's layers.
@@ -346,11 +341,6 @@ type ImageDestination interface {
 	// If the destination is in principle available, refuses this manifest type (e.g. it does not recognize the schema),
 	// but may accept a different manifest type, the returned error must be an ManifestTypeRejectedError.
 	PutManifest(ctx context.Context, manifest []byte, instanceDigest *digest.Digest) error
-	// PutSignatures writes a set of signatures to the destination.
-	// If instanceDigest is not nil, it contains a digest of the specific manifest instance to write or overwrite the signatures for
-	// (when the primary manifest is a manifest list); this should always be nil if the primary manifest is not a manifest list.
-	// MUST be called after PutManifest (signatures may reference manifest contents).
-	PutSignatures(ctx context.Context, signatures [][]byte, instanceDigest *digest.Digest) error
 	// Commit marks the process of storing the image as successful and asks for the image to be persisted.
 	// unparsedToplevel contains data about the top-level manifest of the source (which may be a single-arch image or a manifest list
 	// if PutManifest was only called for the single-arch image with instanceDigest == nil), primarily to allow lookups by the
@@ -385,8 +375,6 @@ type UnparsedImage interface {
 	Reference() ImageReference
 	// Manifest is like ImageSource.GetManifest, but the result is cached; it is OK to call this however often you need.
 	Manifest(ctx context.Context) ([]byte, string, error)
-	// Signatures is like ImageSource.GetSignatures, but the result is cached; it is OK to call this however often you need.
-	Signatures(ctx context.Context) ([][]byte, error)
 }
 
 // Image is the primary API for inspecting properties of images.

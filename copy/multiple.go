@@ -10,12 +10,12 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/image"
-	internalManifest "github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/internal/set"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/compression"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/image"
+	internalManifest "github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/internal/set"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/compression"
 	digest "github.com/opencontainers/go-digest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
@@ -170,13 +170,6 @@ func (c *copier) copyMultipleImages(ctx context.Context) (copiedManifest []byte,
 	}
 	updatedList := originalList.CloneInternal()
 
-	sigs, err := c.sourceSignatures(ctx, c.unparsedToplevel,
-		"Getting image list signatures",
-		"Checking if image list destination supports signatures")
-	if err != nil {
-		return nil, err
-	}
-
 	// If the destination is a digested reference, make a note of that, determine what digest value we're
 	// expecting, and check that the source manifest matches it.
 	destIsDigestedReference := false
@@ -197,9 +190,6 @@ func (c *copier) copyMultipleImages(ctx context.Context) (copiedManifest []byte,
 	// If we can, set to the empty string. If we can't, set to the reason why.
 	// Compare, and perhaps keep in sync with, the version in copySingleImage.
 	cannotModifyManifestListReason := ""
-	if len(sigs) > 0 {
-		cannotModifyManifestListReason = "Would invalidate signatures"
-	}
 	if destIsDigestedReference {
 		cannotModifyManifestListReason = "Destination specifies a digest"
 	}
@@ -336,18 +326,6 @@ func (c *copier) copyMultipleImages(ctx context.Context) (copiedManifest []byte,
 	}
 	if errs != nil {
 		return nil, fmt.Errorf("Uploading manifest list failed, attempted the following formats: %s", strings.Join(errs, ", "))
-	}
-
-	// Sign the manifest list.
-	newSigs, err := c.createSignatures(ctx, manifestList, c.options.SignIdentity)
-	if err != nil {
-		return nil, err
-	}
-	sigs = append(slices.Clone(sigs), newSigs...)
-
-	c.Printf("Storing list signatures\n")
-	if err := c.dest.PutSignaturesWithFormat(ctx, sigs, nil); err != nil {
-		return nil, fmt.Errorf("writing signatures: %w", err)
 	}
 
 	return manifestList, nil

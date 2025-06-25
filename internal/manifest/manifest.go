@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"slices"
 
-	compressiontypes "github.com/containers/image/v5/pkg/compression/types"
 	"github.com/containers/libtrust"
+	compressiontypes "github.com/loft-sh/image/pkg/compression/types"
 	digest "github.com/opencontainers/go-digest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )

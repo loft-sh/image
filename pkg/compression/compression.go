@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/containers/image/v5/pkg/compression/internal"
-	"github.com/containers/image/v5/pkg/compression/types"
 	"github.com/containers/storage/pkg/chunked/compressor"
 	"github.com/klauspost/pgzip"
+	"github.com/loft-sh/image/pkg/compression/internal"
+	"github.com/loft-sh/image/pkg/compression/types"
 	"github.com/sirupsen/logrus"
 	"github.com/ulikunitz/xz"
 )

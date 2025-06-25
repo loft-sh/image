@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/types"
 )
 
 // NoGetBlobAtInitialize implements parts of private.ImageSource

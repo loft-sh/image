@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/containers/image/v5/types"
 	dockerclient "github.com/docker/docker/client"
 	"github.com/docker/go-connections/tlsconfig"
+	"github.com/loft-sh/image/types"
 )
 
 // NewDockerClient initializes a new API client based on the passed SystemContext.

@@ -8,11 +8,11 @@
 //	import (
 //		"context"
 //
-//		cp "github.com/containers/image/v5/copy"
-//		"github.com/containers/image/v5/signature"
-//		"github.com/containers/image/v5/tarball"
-//		"github.com/containers/image/v5/transports/alltransports"
-//		"github.com/containers/image/v5/types"
+//		cp "github.com/loft-sh/image/copy"
+//		"github.com/loft-sh/image/signature"
+//		"github.com/loft-sh/image/tarball"
+//		"github.com/loft-sh/image/transports/alltransports"
+//		"github.com/loft-sh/image/types"
 //		imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 //	)
 //

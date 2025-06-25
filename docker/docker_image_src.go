@@ -11,23 +11,19 @@ import (
 	"mime"
 	"mime/multipart"
 	"net/http"
-	"net/url"
-	"os"
 	"os/exec"
 	"strings"
 	"sync"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/imagesource/impl"
-	"github.com/containers/image/v5/internal/imagesource/stubs"
-	"github.com/containers/image/v5/internal/iolimits"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/signature"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/blobinfocache/none"
-	"github.com/containers/image/v5/pkg/sysregistriesv2"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/regexp"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/imagesource/impl"
+	"github.com/loft-sh/image/internal/imagesource/stubs"
+	"github.com/loft-sh/image/internal/iolimits"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/sysregistriesv2"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	"github.com/sirupsen/logrus"
 )
@@ -457,34 +453,6 @@ func (s *dockerImageSource) GetBlob(ctx context.Context, info types.BlobInfo, ca
 	return s.c.getBlob(ctx, s.physicalRef, info, cache)
 }
 
-// GetSignaturesWithFormat returns the image's signatures.  It may use a remote (= slow) service.
-// If instanceDigest is not nil, it contains a digest of the specific manifest instance to retrieve signatures for
-// (when the primary manifest is a manifest list); this never happens if the primary manifest is not a manifest list
-// (e.g. if the source never returns manifest lists).
-func (s *dockerImageSource) GetSignaturesWithFormat(ctx context.Context, instanceDigest *digest.Digest) ([]signature.Signature, error) {
-	if err := s.c.detectProperties(ctx); err != nil {
-		return nil, err
-	}
-	var res []signature.Signature
-	switch {
-	case s.c.supportsSignatures:
-		if err := s.appendSignaturesFromAPIExtension(ctx, &res, instanceDigest); err != nil {
-			return nil, err
-		}
-	case s.c.signatureBase != nil:
-		if err := s.appendSignaturesFromLookaside(ctx, &res, instanceDigest); err != nil {
-			return nil, err
-		}
-	default:
-		return nil, errors.New("Internal error: X-Registry-Supports-Signatures extension not supported, and lookaside should not be empty configuration")
-	}
-
-	if err := s.appendSignaturesFromSigstoreAttachments(ctx, &res, instanceDigest); err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
 // manifestDigest returns a digest of the manifest, from instanceDigest if non-nil; or from the supplied reference,
 // or finally, from a fetched manifest.
 func (s *dockerImageSource) manifestDigest(ctx context.Context, instanceDigest *digest.Digest) (digest.Digest, error) {
@@ -501,159 +469,6 @@ func (s *dockerImageSource) manifestDigest(ctx context.Context, instanceDigest *
 		return "", err
 	}
 	return manifest.Digest(s.cachedManifest)
-}
-
-// appendSignaturesFromLookaside implements GetSignaturesWithFormat() from the lookaside location configured in s.c.signatureBase,
-// which is not nil, storing the signatures to *dest.
-// On error, the contents of *dest are undefined.
-func (s *dockerImageSource) appendSignaturesFromLookaside(ctx context.Context, dest *[]signature.Signature, instanceDigest *digest.Digest) error {
-	manifestDigest, err := s.manifestDigest(ctx, instanceDigest)
-	if err != nil {
-		return err
-	}
-
-	// NOTE: Keep this in sync with docs/signature-protocols.md!
-	for i := 0; ; i++ {
-		if i >= maxLookasideSignatures {
-			return fmt.Errorf("server provided %d signatures, assuming that's unreasonable and a server error", maxLookasideSignatures)
-		}
-
-		sigURL, err := lookasideStorageURL(s.c.signatureBase, manifestDigest, i)
-		if err != nil {
-			return err
-		}
-		signature, missing, err := s.getOneSignature(ctx, sigURL)
-		if err != nil {
-			return err
-		}
-		if missing {
-			break
-		}
-		*dest = append(*dest, signature)
-	}
-	return nil
-}
-
-// getOneSignature downloads one signature from sigURL, and returns (signature, false, nil)
-// If it successfully determines that the signature does not exist, returns (nil, true, nil).
-// NOTE: Keep this in sync with docs/signature-protocols.md!
-func (s *dockerImageSource) getOneSignature(ctx context.Context, sigURL *url.URL) (signature.Signature, bool, error) {
-	switch sigURL.Scheme {
-	case "file":
-		logrus.Debugf("Reading %s", sigURL.Path)
-		sigBlob, err := os.ReadFile(sigURL.Path)
-		if err != nil {
-			if os.IsNotExist(err) {
-				return nil, true, nil
-			}
-			return nil, false, err
-		}
-		sig, err := signature.FromBlob(sigBlob)
-		if err != nil {
-			return nil, false, fmt.Errorf("parsing signature %q: %w", sigURL.Path, err)
-		}
-		return sig, false, nil
-
-	case "http", "https":
-		logrus.Debugf("GET %s", sigURL.Redacted())
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, sigURL.String(), nil)
-		if err != nil {
-			return nil, false, err
-		}
-		res, err := s.c.client.Do(req)
-		if err != nil {
-			return nil, false, err
-		}
-		defer res.Body.Close()
-		if res.StatusCode == http.StatusNotFound {
-			logrus.Debugf("... got status 404, as expected = end of signatures")
-			return nil, true, nil
-		} else if res.StatusCode != http.StatusOK {
-			return nil, false, fmt.Errorf("reading signature from %s: %w", sigURL.Redacted(), newUnexpectedHTTPStatusError(res))
-		}
-
-		contentType := res.Header.Get("Content-Type")
-		if mimeType := simplifyContentType(contentType); mimeType == "text/html" {
-			logrus.Warnf("Signature %q has Content-Type %q, unexpected for a signature", sigURL.Redacted(), contentType)
-			// Don’t immediately fail; the lookaside spec does not place any requirements on Content-Type.
-			// If the content really is HTML, it’s going to fail in signature.FromBlob.
-		}
-
-		sigBlob, err := iolimits.ReadAtMost(res.Body, iolimits.MaxSignatureBodySize)
-		if err != nil {
-			return nil, false, err
-		}
-		sig, err := signature.FromBlob(sigBlob)
-		if err != nil {
-			return nil, false, fmt.Errorf("parsing signature %s: %w", sigURL.Redacted(), err)
-		}
-		return sig, false, nil
-
-	default:
-		return nil, false, fmt.Errorf("Unsupported scheme when reading signature from %s", sigURL.Redacted())
-	}
-}
-
-// appendSignaturesFromAPIExtension implements GetSignaturesWithFormat() using the X-Registry-Supports-Signatures API extension,
-// storing the signatures to *dest.
-// On error, the contents of *dest are undefined.
-func (s *dockerImageSource) appendSignaturesFromAPIExtension(ctx context.Context, dest *[]signature.Signature, instanceDigest *digest.Digest) error {
-	manifestDigest, err := s.manifestDigest(ctx, instanceDigest)
-	if err != nil {
-		return err
-	}
-
-	parsedBody, err := s.c.getExtensionsSignatures(ctx, s.physicalRef, manifestDigest)
-	if err != nil {
-		return err
-	}
-
-	for _, sig := range parsedBody.Signatures {
-		if sig.Version == extensionSignatureSchemaVersion && sig.Type == extensionSignatureTypeAtomic {
-			*dest = append(*dest, signature.SimpleSigningFromBlob(sig.Content))
-		}
-	}
-	return nil
-}
-
-// appendSignaturesFromSigstoreAttachments implements GetSignaturesWithFormat() using the sigstore tag convention,
-// storing the signatures to *dest.
-// On error, the contents of *dest are undefined.
-func (s *dockerImageSource) appendSignaturesFromSigstoreAttachments(ctx context.Context, dest *[]signature.Signature, instanceDigest *digest.Digest) error {
-	if !s.c.useSigstoreAttachments {
-		logrus.Debugf("Not looking for sigstore attachments: disabled by configuration")
-		return nil
-	}
-
-	manifestDigest, err := s.manifestDigest(ctx, instanceDigest)
-	if err != nil {
-		return err
-	}
-
-	ociManifest, err := s.c.getSigstoreAttachmentManifest(ctx, s.physicalRef, manifestDigest)
-	if err != nil {
-		return err
-	}
-	if ociManifest == nil {
-		return nil
-	}
-
-	logrus.Debugf("Found a sigstore attachment manifest with %d layers", len(ociManifest.Layers))
-	for layerIndex, layer := range ociManifest.Layers {
-		// Note that this copies all kinds of attachments: attestations, and whatever else is there,
-		// not just signatures. We leave the signature consumers to decide based on the MIME type.
-		logrus.Debugf("Fetching sigstore attachment %d/%d: %s", layerIndex+1, len(ociManifest.Layers), layer.Digest.String())
-		// We don’t benefit from a real BlobInfoCache here because we never try to reuse/mount attachment payloads.
-		// That might eventually need to change if payloads grow to be not just signatures, but something
-		// significantly large.
-		payload, err := s.c.getOCIDescriptorContents(ctx, s.physicalRef, layer, iolimits.MaxSignatureBodySize,
-			none.NoCache)
-		if err != nil {
-			return err
-		}
-		*dest = append(*dest, signature.SigstoreFromComponents(layer.MediaType, payload, layer.Annotations))
-	}
-	return nil
 }
 
 // deleteImage deletes the named image from the registry, if supported.
@@ -719,20 +534,6 @@ func deleteImage(ctx context.Context, sys *types.SystemContext, ref dockerRefere
 	defer delete.Body.Close()
 	if delete.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("deleting %v: %w", ref.ref, registryHTTPResponseToError(delete))
-	}
-
-	for i := 0; ; i++ {
-		sigURL, err := lookasideStorageURL(c.signatureBase, manifestDigest, i)
-		if err != nil {
-			return err
-		}
-		missing, err := c.deleteOneSignature(sigURL)
-		if err != nil {
-			return err
-		}
-		if missing {
-			break
-		}
 	}
 
 	return nil

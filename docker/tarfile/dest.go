@@ -4,10 +4,10 @@ import (
 	"context"
 	"io"
 
-	internal "github.com/containers/image/v5/docker/internal/tarfile"
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/types"
+	internal "github.com/loft-sh/image/docker/internal/tarfile"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 )
 
@@ -105,13 +105,6 @@ func (d *Destination) TryReusingBlob(ctx context.Context, info types.BlobInfo, c
 // but may accept a different manifest type, the returned error must be an ManifestTypeRejectedError.
 func (d *Destination) PutManifest(ctx context.Context, m []byte, instanceDigest *digest.Digest) error {
 	return d.internal.PutManifest(ctx, m, instanceDigest)
-}
-
-// PutSignatures would add the given signatures to the docker tarfile (currently not supported).
-// The instanceDigest value is expected to always be nil, because this transport does not support manifest lists, so
-// there can be no secondary manifests.  MUST be called after PutManifest (signatures reference manifest contents).
-func (d *Destination) PutSignatures(ctx context.Context, signatures [][]byte, instanceDigest *digest.Digest) error {
-	return d.internal.PutSignatures(ctx, signatures, instanceDigest)
 }
 
 // Commit finishes writing data to the underlying io.Writer.

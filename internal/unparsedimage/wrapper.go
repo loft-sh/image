@@ -1,11 +1,8 @@
 package unparsedimage
 
 import (
-	"context"
-
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/internal/signature"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/types"
 )
 
 // wrapped provides the private.UnparsedImage operations
@@ -22,17 +19,4 @@ func FromPublic(unparsed types.UnparsedImage) private.UnparsedImage {
 	return &wrapped{
 		UnparsedImage: unparsed,
 	}
-}
-
-// UntrustedSignatures is like ImageSource.GetSignaturesWithFormat, but the result is cached; it is OK to call this however often you need.
-func (w *wrapped) UntrustedSignatures(ctx context.Context) ([]signature.Signature, error) {
-	sigs, err := w.Signatures(ctx)
-	if err != nil {
-		return nil, err
-	}
-	res := []signature.Signature{}
-	for _, sig := range sigs {
-		res = append(res, signature.SimpleSigningFromBlob(sig))
-	}
-	return res, nil
 }

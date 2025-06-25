@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/types"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
 

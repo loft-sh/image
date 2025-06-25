@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/containers/image/v5/internal/set"
+	"github.com/loft-sh/image/internal/set"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

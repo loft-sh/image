@@ -5,8 +5,8 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/containers/image/v5/internal/set"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/set"
+	"github.com/loft-sh/image/types"
 )
 
 // knownTransports is a registry of known ImageTransport instances.

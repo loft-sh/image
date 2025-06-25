@@ -3,10 +3,10 @@ package archive
 import (
 	"fmt"
 
-	"github.com/containers/image/v5/docker/internal/tarfile"
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/transports"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/internal/tarfile"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/transports"
+	"github.com/loft-sh/image/types"
 )
 
 // Reader manages a single Docker archive, allows listing its contents and accessing

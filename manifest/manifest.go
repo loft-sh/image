@@ -3,9 +3,9 @@ package manifest
 import (
 	"fmt"
 
-	"github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/libtrust"
+	"github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )

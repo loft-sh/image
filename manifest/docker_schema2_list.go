@@ -1,7 +1,7 @@
 package manifest
 
 import (
-	"github.com/containers/image/v5/internal/manifest"
+	"github.com/loft-sh/image/internal/manifest"
 )
 
 // Schema2PlatformSpec describes the platform which a particular manifest is

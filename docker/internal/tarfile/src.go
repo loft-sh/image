@@ -12,13 +12,13 @@ import (
 	"path"
 	"sync"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/internal/imagesource/impl"
-	"github.com/containers/image/v5/internal/imagesource/stubs"
-	"github.com/containers/image/v5/internal/iolimits"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/pkg/compression"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/internal/imagesource/impl"
+	"github.com/loft-sh/image/internal/imagesource/stubs"
+	"github.com/loft-sh/image/internal/iolimits"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/pkg/compression"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 )
 
@@ -26,7 +26,6 @@ import (
 type Source struct {
 	impl.Compat
 	impl.PropertyMethodsInitialize
-	impl.NoSignatures
 	impl.DoesNotAffectLayerInfosForCopy
 	stubs.NoGetBlobAtInitialize
 

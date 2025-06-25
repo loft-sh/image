@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/pkg/compression"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/pkg/compression"
+	"github.com/loft-sh/image/types"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/stretchr/testify/assert"
 )

@@ -8,11 +8,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/containers/image/v5/docker/reference"
-	"github.com/containers/image/v5/manifest"
-	"github.com/containers/image/v5/transports"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage"
+	"github.com/loft-sh/image/docker/reference"
+	"github.com/loft-sh/image/manifest"
+	"github.com/loft-sh/image/transports"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	"github.com/sirupsen/logrus"
 )

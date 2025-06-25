@@ -6,8 +6,8 @@ package image
 import (
 	"context"
 
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/types"
 )
 
 // FromSource returns a types.ImageCloser implementation for the default instance of source.

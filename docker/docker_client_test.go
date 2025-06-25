@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/containers/image/v5/internal/useragent"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/internal/useragent"
+	"github.com/loft-sh/image/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

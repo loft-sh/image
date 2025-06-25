@@ -4,20 +4,18 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/containers/image/v5/transports"
-	"github.com/containers/image/v5/types"
+	"github.com/loft-sh/image/transports"
+	"github.com/loft-sh/image/types"
 
 	// Register all known transports.
 	// NOTE: Make sure docs/containers-transports.5.md and docs/containers-policy.json.5.md are updated when adding or updating
 	// a transport.
-	_ "github.com/containers/image/v5/directory"
-	_ "github.com/containers/image/v5/docker"
-	_ "github.com/containers/image/v5/docker/archive"
-	_ "github.com/containers/image/v5/oci/archive"
-	_ "github.com/containers/image/v5/oci/layout"
-	_ "github.com/containers/image/v5/openshift"
-	_ "github.com/containers/image/v5/sif"
-	_ "github.com/containers/image/v5/tarball"
+	_ "github.com/loft-sh/image/directory"
+	_ "github.com/loft-sh/image/docker"
+	_ "github.com/loft-sh/image/docker/archive"
+	_ "github.com/loft-sh/image/oci/archive"
+	_ "github.com/loft-sh/image/oci/layout"
+	_ "github.com/loft-sh/image/tarball"
 	// The docker-daemon transport is registeredy by docker_daemon*.go
 	// The storage transport is registered by storage*.go
 )

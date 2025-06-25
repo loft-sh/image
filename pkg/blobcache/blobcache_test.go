@@ -14,14 +14,13 @@ import (
 	"strings"
 	"testing"
 
-	cp "github.com/containers/image/v5/copy"
-	"github.com/containers/image/v5/directory"
-	"github.com/containers/image/v5/internal/image"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/pkg/blobinfocache/none"
-	"github.com/containers/image/v5/signature"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/archive"
+	cp "github.com/loft-sh/image/copy"
+	"github.com/loft-sh/image/directory"
+	"github.com/loft-sh/image/internal/image"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/pkg/blobinfocache/none"
+	"github.com/loft-sh/image/types"
 	digest "github.com/opencontainers/go-digest"
 	specs "github.com/opencontainers/image-spec/specs-go"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
@@ -213,13 +212,7 @@ func TestBlobCache(t *testing.T) {
 					SourceCtx:      &systemContext,
 					DestinationCtx: &systemContext,
 				}
-				policyContext, err := signature.NewPolicyContext(&signature.Policy{
-					Default: []signature.PolicyRequirement{signature.NewPRInsecureAcceptAnything()},
-				})
-				if err != nil {
-					t.Fatalf("error creating signature policy context: %v", err)
-				}
-				_, err = cp.Image(context.TODO(), policyContext, destRef, srcRef, &options)
+				_, err = cp.Image(context.TODO(), destRef, srcRef, &options)
 				if err == nil {
 					t.Fatalf("expected an error copying the image, but got success")
 				} else {
@@ -229,7 +222,7 @@ func TestBlobCache(t *testing.T) {
 						t.Logf("got an error copying the image with missing blobs, but not sure which error: %v", err)
 					}
 				}
-				_, err = cp.Image(context.TODO(), policyContext, destRef, cachedSrcRef, &options)
+				_, err = cp.Image(context.TODO(), destRef, cachedSrcRef, &options)
 				if err != nil {
 					t.Fatalf("unexpected error copying the image using the cache: %v", err)
 				}

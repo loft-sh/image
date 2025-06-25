@@ -10,14 +10,14 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/containers/image/v5/internal/imagesource/impl"
-	"github.com/containers/image/v5/internal/imagesource/stubs"
-	"github.com/containers/image/v5/internal/manifest"
-	"github.com/containers/image/v5/internal/private"
-	"github.com/containers/image/v5/pkg/tlsclientconfig"
-	"github.com/containers/image/v5/types"
 	"github.com/containers/storage/pkg/fileutils"
 	"github.com/docker/go-connections/tlsconfig"
+	"github.com/loft-sh/image/internal/imagesource/impl"
+	"github.com/loft-sh/image/internal/imagesource/stubs"
+	"github.com/loft-sh/image/internal/manifest"
+	"github.com/loft-sh/image/internal/private"
+	"github.com/loft-sh/image/pkg/tlsclientconfig"
+	"github.com/loft-sh/image/types"
 	"github.com/opencontainers/go-digest"
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 )
@@ -36,7 +36,6 @@ func (e ImageNotFoundError) Error() string {
 type ociImageSource struct {
 	impl.Compat
 	impl.PropertyMethodsInitialize
-	impl.NoSignatures
 	impl.DoesNotAffectLayerInfosForCopy
 	stubs.NoGetBlobAtInitialize
 
