@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -25,6 +26,8 @@ import (
 	"github.com/loft-sh/image/pkg/sysregistriesv2"
 	"github.com/loft-sh/image/types"
 	"github.com/sirupsen/logrus"
+
+	"github.com/docker/cli/cli/config"
 )
 
 type dockerAuthConfig struct {
@@ -797,9 +800,37 @@ func deleteCredsFromCredHelper(credHelper, registry string) error {
 	return helperclient.Erase(p, registry)
 }
 
+func getDockerAuthConfig(host, path string) (types.DockerAuthConfig, error) {
+	contents, err := os.ReadFile(path)
+	if err != nil {
+		return types.DockerAuthConfig{}, err
+	}
+
+	dockerConfig, err := config.LoadFromReader(bytes.NewReader(contents))
+	if err != nil {
+		return types.DockerAuthConfig{}, err
+	}
+
+	ac, err := dockerConfig.GetAuthConfig(host)
+	if err != nil {
+		return types.DockerAuthConfig{}, err
+	}
+
+	return types.DockerAuthConfig{
+		Username:      ac.Username,
+		Password:      ac.Password,
+		IdentityToken: ac.IdentityToken,
+	}, nil
+}
+
 // findCredentialsInFile looks for credentials matching "key"
 // (which is "registry" or a namespace in "registry") in "path".
 func findCredentialsInFile(key, registry string, path authPath) (types.DockerAuthConfig, error) {
+	dockerAuthConfig, err := getDockerAuthConfig(normalizeRegistry(registry), path.path)
+	if err == nil && dockerAuthConfig.Username != "" {
+		return dockerAuthConfig, nil
+	}
+
 	fileContents, err := path.parse()
 	if err != nil {
 		return types.DockerAuthConfig{}, fmt.Errorf("reading JSON file %q: %w", path.path, err)
