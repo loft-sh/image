@@ -12,6 +12,7 @@ import (
 	// a transport.
 	_ "github.com/loft-sh/image/docker"
 	_ "github.com/loft-sh/image/oci/archive"
+	_ "github.com/loft-sh/image/oci/layout"
 	// The docker-daemon transport is registeredy by docker_daemon*.go
 	// The storage transport is registered by storage*.go
 )
