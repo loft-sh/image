@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/containers/storage/pkg/regexp"
-	"github.com/docker/docker/api/types/versions"
 	"github.com/loft-sh/image/docker/reference"
 	"github.com/loft-sh/image/internal/manifest"
 	"github.com/loft-sh/image/internal/set"
 	compressiontypes "github.com/loft-sh/image/pkg/compression/types"
 	"github.com/loft-sh/image/types"
+	"github.com/moby/moby/client/pkg/versions"
 	"github.com/opencontainers/go-digest"
 )
 
